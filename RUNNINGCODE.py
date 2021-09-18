@@ -1,13 +1,14 @@
 import base64
+import pyperclip
+#be sure to install pyperclip before-- pip install pyperclip
 import random
 import array
-
 #GUI CREATION
 from tkinter import *
 
 window=Tk()
 window.title('Password Manager') #giving the name to the window
-window.geometry("550x300+10+20") #giving the dimensions of the window
+window.geometry("550x400+10+20") #giving the dimensions of the window
 window.config(padx=50, pady=50, bg="midnight blue") #giving the color of the window
 
 
@@ -43,8 +44,8 @@ def submit():
       base64message=base64.b85encode(base64.b64encode(encodedstring))    #returns encoded version of the given string
       #base64message.decode("ascii")
       file.write(base64message.decode("ascii"))
-      print(encodedstring)
-      print(base64message)
+      print(encodedstring,type(encodedstring))
+      print(base64message,type(base64message))
       file.close()
     
     file = open("user1.txt","a")
@@ -54,10 +55,18 @@ def submit():
     
     file.write("\n")
     file.write("\n")
-	
+
     username_var.set("")
     passw_var.set("")
 
+    w=Text(window,height=1,width=29,font=('calibre',10,'bold'), bg = "light cyan", fg = "midnight blue")
+    w.insert(INSERT,"Encryption copied to clipboard!")
+    w.grid(row=11,column=1)
+
+    
+    pyperclip.copy(base64message.decode("ascii"))
+    spam = pyperclip.paste()
+    
 
 def decrypt():
     user=str(input("Enter the username whose code you want to decrypt  "))
@@ -166,6 +175,7 @@ sub_btn.grid(row=19,column=1)
 label = Label(window,bg = "midnight blue")
 label.grid(column=7)
 
+
 # creating a button using the widget
 # Button that will call the decrypt function
 decrypt_btn=Button(window,text = 'Click Here To Decrypt', command = decrypt, bg = "light cyan", bd = 4, fg = "midnight blue",font=('calibre',10,'bold'))     
@@ -175,5 +185,7 @@ window.mainloop()
 
 
 	
+
+
 
 
