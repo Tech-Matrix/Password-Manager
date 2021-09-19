@@ -1,5 +1,7 @@
 import base64
-
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 #GUI CREATION
 from tkinter import *
 
@@ -25,25 +27,36 @@ label.grid(row=1,column=1)
 username_var=StringVar()
 passw_var=StringVar()
 
+#creating a public and private key
+privateKey = rsa.generate_private_key(public_exponent=65537,key_size=2048)
+publicKey = privateKey.public_key()
+
 # defining a function that will get the name and password and print them in a file
 #function gets called when the submit button is pressed
 def submit():
 
-    username_info = str(username_var.get())
-    password_info = str(passw_var.get())
-   
-    
-    print(username_info,password_info)
- 
-    with open(str(username_info)+".txt",'w+') as file:
-      info=username_info+"\n"+password_info
-      encodedstring=info.encode("ascii")
-      base64message=base64.b85encode(base64.b64encode(encodedstring))    #returns encoded version of the given string
-      #base64message.decode("ascii")
-      file.write(base64message.decode("ascii"))
-      print(encodedstring)
-      print(base64message)
-      file.close()
+  username_info = str(username_var.get())
+  password_info = str(passw_var.get())
+  
+  passLetter='*'
+  print(f"User Name: {username_info}"),
+  print(f"Password: {passLetter*len(password_info)}")
+  with open(str(username_info)+".txt",'wb+') as file:
+    info=username_info+"\n"+password_info
+    encodedstring=info.encode()
+    #encrypting using a public key and padding it
+    encrymsg = publicKey.encrypt(
+    encodedstring,
+    padding.OAEP(
+        mgf=padding.MGF1(algorithm=hashes.SHA256()),
+        algorithm=hashes.SHA256(),
+        label=None
+      )
+    )
+    file.write(encrymsg)
+    print(encodedstring)
+    print(encrymsg)
+    file.close()
     
     file = open("user1.txt","a")
     file.write("Your User Name " + username_info)
@@ -52,21 +65,21 @@ def submit():
     
     file.write("\n")
     file.write("\n")
-	
+
     username_var.set("")
     passw_var.set("")
-
+  
 
 def decrypt():
-    user=str(input("Enter the username whose code you want to decrypt  "))
-    with open(str(user)+".txt",'r') as file:
-      message = file.read()     
+  user=str(input("Enter the username whose code you want to decrypt  "))
+  with open(str(user)+".txt",'r') as file:
+    message = file.read()     
 
-      decrypted_encrypted = base64.b64decode(base64.b85decode(message))        
-      message=decrypted_encrypted.decode("ascii")     #returns decoded version of the given string
-      
-      print(message)
-      file.close()
+    decrypted_encrypted = base64.b64decode(base64.b85decode(message))        
+    message=decrypted_encrypted.decode("ascii")     #returns decoded version of the given string
+    
+    print(message)
+    file.close()
 
 
 L1=Label(window, text="User Name", bg = "light cyan", bd = 4, fg = "midnight blue", font=('calibre',10, 'bold')).grid(row=6)
@@ -103,6 +116,6 @@ decrypt_btn.grid(row=14,column=1)
 window.mainloop()
 
 
-	
+
 
 
